@@ -10,6 +10,7 @@ use 5.022001;
 use warnings;
 use strict;
 use LWP::Simple qw(get);
+use HTML::FormatText;
 
 use constant OK=>0;
 use constant {FALSE=>0, TRUE=>1};
@@ -40,8 +41,7 @@ sub getData {
 }
 sub validateFile {
 	my $file = $_[0];
-  my $genre;
-  my $match = FALSE;
+  my $genre = FALSE;
   my $doctype = FALSE;
   my $htmlMatch = FALSE;
   my $imdbMatch = FALSE;
@@ -50,24 +50,23 @@ sub validateFile {
 
   #Checking file name
   foreach (GENRES){
-    if ($file =~/^$_.html$/i){$match=TRUE;}
-    $genre = $_;
+    if ($file =~/^$_.html$/i){$genre = $_;}
   }
 	return (FALSE, "Not valid filename (imdb html files only)\n")
-	if ($match == FALSE);
+	if ($genre == FALSE);
   #end of file name check
 
   open (my $fileHandler, "<", './Dados/'.$genre.'.html')
   or die ("Could not open file.\n", $!);
 
-  if (<$fileHandler>!~/1/g) {return (FALSE, "Not a valid html file 1\n");}
+  if (<$fileHandler>!~/1/g) {return (FALSE, "Not a valid html file (did not start with 1)\n");}
 
   while (<$fileHandler>){
-    if ($_=~/<!DOCTYPE html>/) {$doctype=TRUE;}
-    if ($_=~/(H|h)(T|t)(M|m)(L|l)/g){$htmlMatch=TRUE;}
-    if ($_=~/imdb/ig){$imdbMatch=TRUE;}
-    if ($_=~/$genre/ig) {$genreMatch=TRUE;}
-    if ($_=~/movie/g) {$movieMatch=TRUE;}
+    if ($_=~/<!DOCTYPE html>/ && $doctype==FALSE) {$doctype=TRUE;}
+    if ($_=~/(H|h)(T|t)(M|m)(L|l)/g && $htmlMatch==FALSE){$htmlMatch=TRUE;}
+    if ($_=~/imdb/ig && $imdbMatch==FALSE){$imdbMatch=TRUE;}
+    if ($_=~/$genre/ig && $genreMatch==FALSE) {$genreMatch=TRUE;}
+    if ($_=~/movie/g && $movieMatch==FALSE) {$movieMatch=TRUE;}
   }
   close $fileHandler
   or die ("Could not close file.\n", $!);
@@ -81,21 +80,17 @@ sub validateFile {
 sub formatHtmlFile {
   my $filename = $_[0];
   my @movieList;
-  open (my $fileHandler, "<", './Dados/'.$filename)
-  or die ("Could not open file.\n", $!);
-  my $i=1;
-  foreach (<$fileHandler>){
-    if($_=~/^>[\s\S]+<\/a>$/){
-      if ($i==4){
-        push @movieList, $_;
-        print $_;
-        $i=1;
-      }
-      $i++;
+  my $niceHtml = HTML::FormatText->format_file
+  ('./Dados/'.$filename, leftmargin => 0, rightmargin => 50);
+
+  my @niceHtml = split(/\n/, $niceHtml);
+
+  foreach (@niceHtml){
+    if (/^\d*\.\s\w*/){
+      push @movieList, $_;
     }
   }
-  close $fileHandler
-  or die ("Could not close file.\n", $!);
+  print @movieList;
 }
 
 {
