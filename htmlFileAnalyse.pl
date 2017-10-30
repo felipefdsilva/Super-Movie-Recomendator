@@ -80,17 +80,37 @@ sub validateFile {
 sub formatHtmlFile {
   my $filename = $_[0];
   my @movieList;
+  my @ageLengthGenre;
+  my @score;
+  my @synopsis;
+  my @director;
   my $niceHtml = HTML::FormatText->format_file
-  ('./Dados/'.$filename, leftmargin => 0, rightmargin => 50);
+  ('./Dados/'.$filename, leftmargin => 0, rightmargin => 300);
 
   my @niceHtml = split(/\n/, $niceHtml);
 
   foreach (@niceHtml){
-    if (/^\d*\.\s\w*/){
+    if (/\d*\.\W\w+/ && /(\(\d{4}\))$/){
       push @movieList, $_;
+      print $_,"\n";
+    }
+    if (/\d*\s\|\s\d*\smin\s\|\s\w*/){
+      push @ageLengthGenre, $_;
+      print $_,"\n";
+    }
+    if (/Rate this/i && /Metascore/i){
+      push @score, $_;
+      print $_,"\n";
+    }
+    if (/^[A-Za-z.\-'0-9:,.();!?]/ && /(\.|\?)$/ && $_ !~ /IMdb.com/i){
+      push @synopsis, $_;
+      print $_,"\n";
+    }
+    if (/^Director/i){
+      push @director, $_;
+      print $_,"\n\n";
     }
   }
-  print @movieList;
 }
 
 {
