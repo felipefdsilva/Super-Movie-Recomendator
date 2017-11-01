@@ -63,7 +63,7 @@ sub validateFile {
 
   while (<$fileHandler>){
     if ($_=~/<!DOCTYPE html>/ && $doctype==FALSE) {$doctype=TRUE;}
-    if ($_=~/(H|h)(T|t)(M|m)(L|l)/g && $htmlMatch==FALSE){$htmlMatch=TRUE;}
+    if ($_=~/html/ig && $htmlMatch==FALSE){$htmlMatch=TRUE;}
     if ($_=~/imdb/ig && $imdbMatch==FALSE){$imdbMatch=TRUE;}
     if ($_=~/$genre/ig && $genreMatch==FALSE) {$genreMatch=TRUE;}
     if ($_=~/movie/g && $movieMatch==FALSE) {$movieMatch=TRUE;}
@@ -77,38 +77,32 @@ sub validateFile {
   return (FALSE, "Not a valid html file (keyword not found)\n");
 }
 
-sub formatHtmlFile {
+sub getHtmlInfo {
   my $filename = $_[0];
-  my @movieList;
-  my @ageLengthGenre;
-  my @score;
-  my @synopsis;
-  my @director;
+  my @movie; my @length; my @genres;
+  my @IMDBscore; my @Metascore;
+  my @synopsis; my @directors;
+  my @stars;
+
   my $niceHtml = HTML::FormatText->format_file
   ('./Dados/'.$filename, leftmargin => 0, rightmargin => 300);
 
   my @niceHtml = split(/\n/, $niceHtml);
 
   foreach (@niceHtml){
-    if (/\d*\.\W\w+/ && /(\(\d{4}\))$/){
-      push @movieList, $_;
-      print $_,"\n";
-    }
-    if (/\d*\s\|\s\d*\smin\s\|\s\w*/){
-      push @ageLengthGenre, $_;
-      print $_,"\n";
-    }
-    if (/Rate this/i && /Metascore/i){
-      push @score, $_;
-      print $_,"\n";
-    }
-    if (/^[A-Za-z.\-'0-9:,.();!?]/ && /(\.|\?)$/ && $_ !~ /IMdb.com/i){
+    if (/^(?:\d{1,2}\.) ([\S\s]*) (?:\()(\d{4})(?:\))$/){
+      push @movie, $1;
+    } elsif (/(?:\d{1,2}) (?:\|) (\d*) (?:min) (?:\|) ((\w+-?,?\s?)+)/){
+      push @length, $1;
+      push @genres, $2;
+    } elsif (/^(\d{1,2}\.?\d)(?:\s(?:\w+\s){12}\S*\sX\s)(\d{2})(?:\s\w+)$/){
+      push @IMDBscore, $1;
+      push @Metascore, $2;
+    } elsif (/^[A-Za-z.\-'0-9:,.();!?]/ && /(\.|\?)$/ && $_ !~ /IMdb.com/i){
       push @synopsis, $_;
-      print $_,"\n";
-    }
-    if (/^Director/i){
-      push @director, $_;
-      print $_,"\n\n";
+    } elsif (/(?:Directors?:\s)((?:\w+\.?|\s|,)+)(?:\|\sStars:\s)([\W\w]+)/i){
+      push @directors, $1;
+      push @stars, $2;
     }
   }
 }
@@ -116,6 +110,6 @@ sub formatHtmlFile {
 {
   #getData;
   #print ((validateFile('drama.html'))[1]);
-  formatHtmlFile ('Action.html');
+  getHtmlInfo ('Action.html');
   exit(OK);
 }
