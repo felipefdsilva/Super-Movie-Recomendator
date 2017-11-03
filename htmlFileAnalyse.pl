@@ -15,7 +15,7 @@ use HTML::FormatText;
 use constant OK=>0;
 use constant {FALSE=>0, TRUE=>1};
 
-use constant DOMAIN=>'http://www.imdb.com/search/title?view=advanced&sort=num_votes,desc&genres=';
+use constant URL=>'http://www.imdb.com/search/title?view=advanced&sort=num_votes,desc&genres=';
 use constant GENRES=>qw(Action Adventure Animation
                         Biography Comedy Crime
                         Documentary Drama Family
@@ -24,12 +24,12 @@ use constant GENRES=>qw(Action Adventure Animation
                         Mystery Romance Sci-Fi
                         Sport Thriller War Western);
 
-sub getData {
+sub getHtmlFiles {
   foreach my $genre (GENRES) {
-  	say "Start DOMAIN$genre";
-    my $html = get(DOMAIN.$genre);
+  	say "Fetching ",URL.$genre;
+    my $html = get(URL.$genre);
 
-    open (my $fileHandler, '>>', './Dados/'.$genre.'.html')
+    open (my $fileHandler, '>:encoding(UTF-8)', './Dados/'.$genre.'.html')
     or die ("Could not create file.\n", $!);
 
     say $fileHandler $html;
@@ -41,40 +41,35 @@ sub getData {
 }
 sub validateFile {
 	my $file = $_[0];
-  my $genre = FALSE;
-  my $doctype = FALSE;
-  my $htmlMatch = FALSE;
-  my $imdbMatch = FALSE;
-  my $genreMatch = FALSE;
-  my $movieMatch = FALSE;
+  my $credibility = 0;
+  my $genre;
 
-  #Checking file name
   foreach (GENRES){
-    if ($file =~/^$_.html$/i){$genre = $_;}
+    if ($file =~ /$_(.html)$/){
+      $genre = $_;
+      $credibility++;
+      last;
+    }
   }
-	return (FALSE, "Not valid filename (imdb html files only)\n")
-	if ($genre == FALSE);
-  #end of file name check
+  return (FALSE, "Not valid filename (imdb html files only)\n")
+  unless ($credibility);
 
-  open (my $fileHandler, "<", './Dados/'.$genre.'.html')
+  open (my $fileHandler, "<", $file)
   or die ("Could not open file.\n", $!);
 
-  if (<$fileHandler>!~/1/g) {return (FALSE, "Not a valid html file (did not start with 1)\n");}
-
   while (<$fileHandler>){
-    if ($_=~/<!DOCTYPE html>/ && $doctype==FALSE) {$doctype=TRUE;}
-    if ($_=~/html/ig && $htmlMatch==FALSE){$htmlMatch=TRUE;}
-    if ($_=~/imdb/ig && $imdbMatch==FALSE){$imdbMatch=TRUE;}
-    if ($_=~/$genre/ig && $genreMatch==FALSE) {$genreMatch=TRUE;}
-    if ($_=~/movie/g && $movieMatch==FALSE) {$movieMatch=TRUE;}
+    if (/(<!DOCTYPE html>)|html|img|href|body|head|
+    imdb|$genre|movie|directors?|actors|rate/i){
+      $credibility++;
+    }
   }
   close $fileHandler
   or die ("Could not close file.\n", $!);
 
-  if ($doctype && $htmlMatch && $imdbMatch && $genreMatch && $movieMatch){
-    return (TRUE, "This is a nice and valid file\n");
-  }
-  return (FALSE, "Not a valid html file (keyword not found)\n");
+  return (FALSE, "Not a valid html file (low credibility)\n")
+  unless($credibility > 1800 && $credibility < 2000);
+
+  return (TRUE, "This is a nice and valid file\n");
 }
 
 sub getHtmlInfo {
@@ -108,8 +103,10 @@ sub getHtmlInfo {
 }
 
 {
-  #getData;
-  #print ((validateFile('drama.html'))[1]);
-  getHtmlInfo ('Action.html');
+  #getHtmlFiles;
+  #foreach (GENRES){
+  #  print ((validateFile($ARGV[0]))[1]);
+  #}
+  getHtmlInfo ($ARGV[0]);
   exit(OK);
 }
