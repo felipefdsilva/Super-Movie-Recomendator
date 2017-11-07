@@ -72,10 +72,11 @@ sub validateFile {
 }
 sub getHtmlInfo {
   my $filename = $_[0];
-  my @movie; my @length; my @genres;
-  my @IMDBscore; my @Metascore;
-  my @synopsis; my @directors;
-  my @stars; my $getNextLines = FALSE;
+  my @movie; my @year; my @length;
+  my @genres; my @IMDBscore;
+  my @Metascore; my @synopsis;
+  my @directors; my @stars;
+  my $getNextLines = FALSE;
 
   my $niceHtml = HTML::FormatText->format_file
   ($filename, leftmargin => 0, rightmargin => 300);
@@ -85,22 +86,23 @@ sub getHtmlInfo {
   foreach (@niceHtml){
     if (/^(?:\d{1,2}\.) ([\S\s]*) (?:\()(\d{4})(?:\))$/){
       push @movie, $1;
+      push @year, "Year: ".$2;
       $getNextLines = TRUE;
     }
     if ($getNextLines){
-      if (/(?:(?:\d{1,2}|\w+)\s\|\s)?(\d{1,3})(?:\smin\s\|\s)((\w+-?,?\s?)+)$/){
+      if (/(?:(?:\d{1,2}|\w+)\s\|\s)?(\d{1,3}) (?:min\s\|) ((\w+-?,?\s?)+)$/){
         push @length, "Length (min): ".$1;
         push @genres, "Genres: ".$2;
-      } elsif (/^(\d{1,2}\.?\d)(?:\s(?:\w+\s){12}\S*\sX)/){
+      } elsif (/^(\d{1,2}\.?\d) (?:(?:\w+\s){12}\S*\sX)/){
         push @IMDBscore, "IMDB Score: ".$1;
-        if (/(\d{2,3})(?:\sMetascore)$/i){
+        if (/(\d{2,3}) (?:Metascore)$/i){
           push @Metascore, "Metascore: ".$1;
         } else {
           push @Metascore, "Metascore: XX"
         }
-      } elsif (/(?:Stars:\s)([\S\s]+)$/i){
+      } elsif (/(?:Stars:) ([\S\s]+)$/i){
         push @stars, "Stars: ".$1;
-        if (/^(?:Directors?:\s)([\S\s]+)(?:\|\s)/i){
+        if (/^(?:Directors?:) ([\S\s]+)(?:\|\s)/i){
           push @directors, "Director(s): ".$1;
         } else {
           push @directors, "Director(s): XX";
@@ -111,29 +113,58 @@ sub getHtmlInfo {
       }
     }
   }
-  return \@movie, \@length, \@genres, \@IMDBscore, \@Metascore, \@synopsis, \@directors, \@stars;
+  return "Movie", \@movie, "Year", \@year, "Length", \@length,
+         "Genres", \@genres, "IMDB score", \@IMDBscore, "Metascore", \@Metascore,
+         "Synopsis", \@synopsis, "Director(s)", \@directors, "Star", \@stars;
 }
 sub showFile {
-  my @info = @_;
-  my $size = @{$info[0]};
-  print "1\n";
+  my %info = @_;
+  my @infoType = keys %info;
+  my $size = @{$info{$infoType[0]}};
   for (my $movie = 0; $movie < $size; $movie++){
-    for (my $data=0; $data < 8; $data++) {
-      print ${$info[$data]}[$movie],"\n";
-      if ($data == 7 && $movie != $size-1){print "\n\n",$movie+2,"\n";}
+    for (my $data = 0; $data < 9; $data++){
+      if (!$data){
+        print "\n",$movie+1,"\n";
+      }
+      print $infoType[$data], ": ", ${$info{$infoType[$data]}}[$movie],"\n";
     }
   }
 }
-#sub removeRepetitions {
-#}
-#sub analyseSearch {
-#}
+sub moviesSelection {
+  my %info = @{$_[0]};
+  my %params = %{$_[1]};
+
+  my @selectedMovies;
+  my $index = 0;
+  foreach my $paramName (keys %params){
+    foreach my $data (@{$info{$paramName}}){
+      if ($data =~ /$params{$paramName}/){
+        last;
+      } else {
+        $index++;
+      }
+    }
+    foreach my $dataList (values %info){
+      push @selectedMovies, ${$dataList}[$index];
+    }
+    $index = 0;
+  }
+  foreach (@selectedMovies){
+    print $_,"\n";
+  }
+}
+
 {
   #getHtmlFiles;
   #foreach (GENRES){
   #  print ((validateFile($ARGV[0]))[1]);
   #}
+  my %params = ("Movie"=>"Jogos Vorazes");
+  #,"Year"=>"2013","Length"=>"146",
+  #              "Genres"=>" Action, Adventure, Mystery ","IMDB score"=>,
+  #              "Metascore"=>,"Synopsis"=>,"Director(s)"=>,"Stars"=>};
   my @info = getHtmlInfo ($ARGV[0]);
-  showFile (@info);
+  #showFile (@info);
+  print moviesSelection(\@info, \%params);
   exit(OK);
 }
