@@ -96,14 +96,18 @@ sub getHtmlInfo {
         if (/(\d{2,3})(?:\sMetascore)$/i){
           push @Metascore, "Metascore: ".$1;
         } else {
-          push @Metascore, "Metascore: ??"
+          push @Metascore, "Metascore: XX"
         }
-      } elsif (/^[A-Za-z.\-'"0-9:,.();!?]/ && /(\.|\?|")$/ && $_ !~ /IMdb.com/i){
-        push @synopsis, "Synopsis: ".$_;
-      } elsif (/^(?:Directors?:\s)([\S\s]+)(?:\|\sStars:\s)([\S\s]+)/i){
-        push @directors, "Director(s): ".$1;
-        push @stars, "Stars: ".$2;
+      } elsif (/(?:Stars:\s)([\S\s]+)$/i){
+        push @stars, "Stars: ".$1;
+        if (/^(?:Directors?:\s)([\S\s]+)(?:\|\s)/i){
+          push @directors, "Director(s): ".$1;
+        } else {
+          push @directors, "Director(s): XX";
+        }
         $getNextLines=FALSE;
+      } elsif (/^[A-Za-z.\-'"0-9:,.();!?#]/ && /(\.|\?|"|\!)$/){
+        push @synopsis, "Synopsis: ".$_;
       }
     }
   }
