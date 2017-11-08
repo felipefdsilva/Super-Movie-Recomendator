@@ -132,25 +132,25 @@ sub showFile {
 }
 sub moviesSelection {
   my %info = @{$_[0]};
-  my %params = %{$_[1]};
-
-  my @selectedMovies;
-  my $index = 0;
-  foreach my $paramName (keys %params){
-    foreach my $data (@{$info{$paramName}}){
-      if ($data =~ /$params{$paramName}/){
-        last;
-      } else {
-        $index++;
+  my @params = @{$_[1]};
+  my @selectedMovies = [];
+  my $index=0; my $flag=TRUE;
+  foreach my $data (@{$info{"Movie"}}){
+    foreach my $dataList (values %info){
+      $selectedMovies[$index] .= ${$dataList}[$index]."\n";
+    }
+    $index++;
+  }
+  foreach my $movies (@selectedMovies){
+    foreach(@params){
+      if ($movies !~ /$_/){
+        $flag = FALSE;
       }
     }
-    foreach my $dataList (values %info){
-      push @selectedMovies, ${$dataList}[$index];
+    if ($flag){
+      print $movies,"\n";
     }
-    $index = 0;
-  }
-  foreach (@selectedMovies){
-    print $_,"\n";
+    $flag=TRUE;
   }
 }
 
@@ -159,12 +159,10 @@ sub moviesSelection {
   #foreach (GENRES){
   #  print ((validateFile($ARGV[0]))[1]);
   #}
-  my %params = ("Movie"=>"Jogos Vorazes");
-  #,"Year"=>"2013","Length"=>"146",
-  #              "Genres"=>" Action, Adventure, Mystery ","IMDB score"=>,
-  #              "Metascore"=>,"Synopsis"=>,"Director(s)"=>,"Stars"=>};
   my @info = getHtmlInfo ($ARGV[0]);
+  push my @params, "2008";
+  push @params, "Nolan";
   #showFile (@info);
-  print moviesSelection(\@info, \%params);
+  moviesSelection(\@info, \@params);
   exit(OK);
 }
