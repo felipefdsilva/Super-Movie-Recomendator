@@ -7,10 +7,12 @@
 # Recomendador de Filmes e Maratonas
 
 use 5.022001;
-use warnings;
 use strict;
-use LWP::Simple qw(get);
+use warnings;
 use HTML::FormatText;
+use LWP::Simple qw(get);
+use Pod::Usage qw(pod2usage);
+use Getopt::Long qw(GetOptions);
 
 use constant OK=>0;
 use constant {FALSE=>0, TRUE=>1};
@@ -113,56 +115,110 @@ sub getHtmlInfo {
       }
     }
   }
-  return "Movie", \@movie, "Year", \@year, "Length", \@length,
-         "Genres", \@genres, "IMDB score", \@IMDBscore, "Metascore", \@Metascore,
-         "Synopsis", \@synopsis, "Director(s)", \@directors, "Star", \@stars;
+  return \@movie, \@year, \@length, \@genres, \@IMDBscore,
+         \@Metascore, \@synopsis, \@directors, \@stars;
+}
+sub createMovieStrings {
+  my @info = @_;
+  my @movies;
+
+  for (my $index=0; $index < (@{$info[0]}); $index++){
+    foreach my $list (@info){
+      $movies[$index] .= ${$list}[$index]."\n";
+    }
+  }
+  return @movies;
 }
 sub showFile {
-  my %info = @_;
-  my @infoType = keys %info;
-  my $size = @{$info{$infoType[0]}};
-  for (my $movie = 0; $movie < $size; $movie++){
-    for (my $data = 0; $data < 9; $data++){
-      if (!$data){
-        print "\n",$movie+1,"\n";
-      }
-      print $infoType[$data], ": ", ${$info{$infoType[$data]}}[$movie],"\n";
-    }
-  }
+  my @movies = @_;
+  my $index = 1;
+  foreach (@movies){print $index++,"\n", $_,"\n\n";}
 }
 sub moviesSelection {
-  my %info = @{$_[0]};
+  my @movies = @{$_[0]};
   my @params = @{$_[1]};
-  my @selectedMovies = [];
-  my $index=0; my $flag=TRUE;
-  foreach my $data (@{$info{"Movie"}}){
-    foreach my $dataList (values %info){
-      $selectedMovies[$index] .= ${$dataList}[$index]."\n";
-    }
-    $index++;
-  }
-  foreach my $movies (@selectedMovies){
+  my @selectedMovies;
+  my $flag=TRUE;
+
+  foreach my $movie (@movies){
     foreach(@params){
-      if ($movies !~ /$_/){
-        $flag = FALSE;
+      if ($movie !~ /$_/){
+        $flag=FALSE;
       }
     }
     if ($flag){
-      print $movies,"\n";
+      push @selectedMovies, $movie;
     }
     $flag=TRUE;
   }
+  return @selectedMovies;
 }
-
 {
-  #getHtmlFiles;
-  #foreach (GENRES){
-  #  print ((validateFile($ARGV[0]))[1]);
-  #}
-  my @info = getHtmlInfo ($ARGV[0]);
-  push my @params, "2008";
-  push @params, "Nolan";
-  #showFile (@info);
-  moviesSelection(\@info, \@params);
+  my $help; my $renew; my $file; my $show; my @params; my@info; my @movies;
+
+  GetOptions ("help|?"=>\$help, "renew|?"=>\$renew, "file=s"=>\$file,
+              "show|?"=>\$show, "search=s{1,9}"=>\@params) or pod2usage(2);
+
+  pod2usage(-verbose=>2) if $help; #exibe ajuda no terminal
+  if ($renew){getHtmlFiles; exit(OK);}
+
+  #pod2usage("$0: No parameters given.")  if (@ARGV == 0);
+  die ("Options are: --help, --renew, --file (requires --show or --search)\n")
+  unless ($file && $show || $file && @params);
+
+  if ($file){
+    my @error = (validateFile($file));
+    if (!$error[0]){
+      print $error[1];
+      exit(OK);
+    }
+    @info = getHtmlInfo ($file);
+    @movies = createMovieStrings (@info);
+  }
+  if ($show){
+    showFile (@movies);
+  }
+  if (@params){
+    #my @params = split(',',$params);
+    showFile(moviesSelection(\@movies, \@params));
+  }
   exit(OK);
 }
+__END__
+
+=head1 NAME
+
+Super Movie Recomendador - get movie recomendations for your binge watching
+
+=head1 SYNOPSIS
+
+perl smr [--help][--renew][--file][--show]|[--search]
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--help>
+
+show this page
+
+=item B<--show >
+
+print list of most popular movies from imdb, given by the movie genre file
+
+=item B<--renew>
+
+renew movie genre html files stored
+
+=item B<--search>
+
+searchs on file from movies atending to the list of parameters given
+
+=back
+
+=head1 DESCRIPTION
+
+B<This program> will ask for a html file fetched from imdb and return
+movies based on parameters given by the user
+
+=cut
