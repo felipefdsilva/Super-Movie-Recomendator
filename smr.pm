@@ -1,3 +1,11 @@
+# Universidade Federal do Rio de Janeiro
+# Departamento de Engenharia Eletrônica e de Computação
+# Linguagens de Programação 2017.2
+# Professor Miguel Campista
+# Autor: Felipe Ferreira da Silva
+# Trabalho do Período - Parte 2 (Perl)
+# Recomendador de Filmes e Maratonas
+
 package smr;
 
 use 5.022001;
@@ -45,6 +53,8 @@ use constant GENRES=>qw(Action Adventure Animation
                         Romance Sci-Fi Sport
                         Thriller War Western);
 
+# Obtem os arquivos html a partir das paginas web
+# espefificadas por URL+GENRE (constantes acima)
 sub getHtmlFiles {
   foreach my $genre (GENRES) {
   	say "Fetching ",URL.$genre;
@@ -60,6 +70,9 @@ sub getHtmlFiles {
     say "File $genre.html created";
   }
 }
+# Valida o arquivo passado pelo usuario
+# segundo um teste básico de credibilidade
+# e checando a extensão e o nome do arquivo
 sub validateFile {
 	my $file = $_[0];
   my $credibility = 0;
@@ -92,6 +105,8 @@ sub validateFile {
 
   return (TRUE, "This is a nice and valid file\n");
 }
+# Usa regex para identificar e salvar
+# informações dos filmes
 sub getInfo {
   my $filename = $_[0];
   my @movie; my @year; my @length;
@@ -100,21 +115,27 @@ sub getInfo {
   my @directors; my @stars;
   my $getNextLines = FALSE;
 
+	# Formatação prévia do arquivo html (sem tags)
   my $niceHtml = HTML::FormatText->format_file
   ($filename, leftmargin => 0, rightmargin => 300);
+	# Fim da formatação
 
   my @niceHtml = split(/\n/, $niceHtml);
 
+	# Busca por informações
   foreach (@niceHtml){
+		# Busca por filmes e ano de laçamento
     if (/^(?:\d{1,2}\.) ([\S\s]*) (?:\()(\d{4})(?:\))$/){
       push @movie, $1;
       push @year, "Year: ".$2;
       $getNextLines = TRUE;
     }
     if ($getNextLines){
+			# Busca a duração e os gêneros
       if (/(?:(?:\d{1,2}|\w+)\s\|\s)?(\d{1,3}) (?:min\s\|) ((\w+-?,?\s?)+)$/){
         push @length, "Length (min): ".$1;
         push @genres, "Genres: ".$2;
+			# Busca as notas dos usuários
       } elsif (/^(\d{1,2}\.?\d) (?:(?:\w+\s){12}\S*\sX)/){
         push @IMDBscore, "IMDB Score: ".$1;
         if (/(\d{2,3}) (?:Metascore)$/i){
@@ -122,6 +143,7 @@ sub getInfo {
         } else {
           push @Metascore, "Metascore: XX"
         }
+			# Busca pelo atores principais e diretores
       } elsif (/(?:Stars:) ([\S\s]+)$/i){
         push @stars, "Stars: ".$1;
         if (/^(?:Directors?:) ([\S\s]+)(?:\|\s)/i){
@@ -130,6 +152,7 @@ sub getInfo {
           push @directors, "Director(s): XX";
         }
         $getNextLines=FALSE;
+			# Busca pela sinopse
       } elsif (/^[A-Za-z.\-'"0-9:,.();!?#]/ && /(\.|\?|"|\!)$/){
         push @synopsis, "Synopsis: ".$_;
       }
@@ -138,6 +161,8 @@ sub getInfo {
   return \@movie, \@year, \@length, \@genres, \@IMDBscore,
          \@Metascore, \@synopsis, \@directors, \@stars;
 }
+# Concatena as informaçoess de um mesmo filme
+# antes separadas em listas diferentes
 sub createMovieStrings {
   my @info = @_;
   my @movies;
@@ -149,11 +174,14 @@ sub createMovieStrings {
   }
   return @movies;
 }
+# Exibe o arquivo na tela
 sub showFile {
   my @movies = @_;
   my $index = 1;
   foreach (@movies){print $index++,"\n", $_,"\n\n";}
 }
+# Realiza a busca por filmes que atendam
+# aos parâmetros passados pelo usuário
 sub moviesSelection {
   my @movies = @{$_[0]};
   my @params = @{$_[1]};
