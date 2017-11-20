@@ -28,3 +28,27 @@ Parâmetros de entrada:
   * Calcula o tempo total de maratona, somando a duração de cada filme
 #### 6. sortMovies
   * Ordena os filmes na ordem em que devem ser assistidos
+  
+  ### Classes
+  
+  ```c++
+    Class Obra {
+      private:
+        string autor;
+        string ano;
+    };
+    Class Movie: public Obra {
+      ostream &operator<< (ostream &, Movie &);
+      private:
+        string name;
+        string year;
+        ...
+    };
+    Class Marathon {
+      public:
+        Marathon &operator+= (const Movie &);
+      private:
+        vector <Movie &> movies;
+        unsigned time;
+    };
+  ```
