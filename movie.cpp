@@ -12,21 +12,18 @@
 #include "movie.h"
 
 ostream &operator<< (ostream &output, const Movie &movie){
-  output << "Title: " << movie.getName ()
-          << "\nYear: " << movie.getYear ()
-          << "\nDirector: " << movie.getAuthor ()
+  output << "Title: " << movie.getName()
+          << "\nYear: " << movie.getYear()
+          << "\nDirector: " << movie.getAuthor()
           << "\nSisnopsys: " << movie.mSinopsys
           << "\nLength: " << movie.mLength
-          << "\nRating: " << movie.mRating
-          << endl;
+          << "\nRating: " << movie.getRating();
 
-  output << "Actors: ";
+  output << "\nActors: ";
   for (unsigned i = 0; i < movie.mActors.size(); i++){
     output << movie.mActors.at(i) << ", ";
   }
-  output << endl;
-
-  output << "Genres: ";
+  output << "\nGenres: ";
   for (unsigned i = 0; i < movie.mGenres.size(); i++){
     output << movie.mGenres.at(i) << ", ";
   }
@@ -35,18 +32,30 @@ ostream &operator<< (ostream &output, const Movie &movie){
   return output;
 }
 
-Movie::Movie (string movieName, string director, unsigned year,
-string sinopsys, unsigned length, float rating,
-string *actors, unsigned sizeActors,
-string *genres, unsigned sizeGenres):
-Production(movieName, director, year),
-mSinopsys(sinopsys), mLength(length), mRating(rating) {
+Movie::Movie (string movieName,
+              string director,
+              unsigned year,
+              string sinopsys,
+              unsigned length,
+              float imdbRating,
+              float metaRating,
+              string *actors,
+              unsigned sizeActors,
+              string *genres,
+              unsigned sizeGenres):
+              Production(movieName, director, year),
+              mSinopsys(sinopsys),
+              mLength(length),
+              mImdbRating(imdbRating),
+              mMetaRating(metaRating),
+              mActors(sizeActors),
+              mGenres(sizeGenres) {
 
   for (unsigned i = 0; i < sizeActors; i++){
-    mActors.push_back(actors[i]);
+    mActors.at(i) = actors[i];
   }
   for (unsigned i = 0; i < sizeGenres; i++){
-    mGenres.push_back(genres[i]);
+    mGenres.at(i) = genres[i];
   }
 }
 string Movie::getSinopsys () const {
@@ -62,5 +71,5 @@ unsigned Movie::getLength () const {
   return mLength;
 }
 float Movie::getRating () const {
-  return mRating;
+  return (mImdbRating+mMetaRating)/2;
 }

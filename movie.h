@@ -23,8 +23,8 @@ class Movie: public Production {
   friend ostream &operator<< (ostream &, const Movie &);
 
   public:
-    Movie (string, string, unsigned, string, unsigned,
-      float, string *, unsigned, string *, unsigned);
+    Movie (string, string, unsigned, string, unsigned, float,
+          float, string *, unsigned, string *, unsigned);
     string getSinopsys () const;
     void getActors (vector <string> &) const;
     void getGenres (vector <string> &) const;
@@ -33,7 +33,7 @@ class Movie: public Production {
   private:
     string mSinopsys;
     unsigned mLength;
-    float mRating;
+    float mImdbRating, mMetaRating;
     vector <string> mActors;
     vector <string> mGenres;
   };
