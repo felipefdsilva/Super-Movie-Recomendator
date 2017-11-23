@@ -3,17 +3,14 @@
 
 #include <EXTERN.h>
 #include <perl.h>
-#include "XSUB.h"
-#include "marathon.h"
+#include <vector>
+#include <string>
 
 using namespace std;
 
-EXTERN_C void xs_init (pTHX);
-EXTERN_C void boot_DynaLoader (pTHX_ CV* cv);
-
 class PerlWrapper {
 	public:
-		PerlWrapper ();
+		PerlWrapper (int *, char ***, char ***);
 		~PerlWrapper ();
 		void runInterpreterWithPerlFile (char *file);
 		void renewFiles ();
@@ -21,7 +18,7 @@ class PerlWrapper {
 		void retrieveMovieCandidates (const char *,
 																	const char **,
 																	unsigned,
-																	Marathon &);
+																	vector<string> &);
 
 	private:
 		PerlInterpreter *my_perl;

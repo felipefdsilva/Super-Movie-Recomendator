@@ -1,15 +1,8 @@
 #include "wrapper.h"
+#include "xsinit.h"
 
-EXTERN_C void xs_init(pTHX) {
-    static const char file[] = __FILE__;
-    dXSUB_SYS;
-    PERL_UNUSED_CONTEXT;
-
-    /* DynaLoader is a special case */
-    newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
-}
-PerlWrapper::PerlWrapper (){
-	PERL_SYS_INIT3 (NULL, NULL, NULL);
+PerlWrapper::PerlWrapper (int *pArgc, char ***pArgv, char ***pEnv){
+	PERL_SYS_INIT3 (pArgc, pArgv, pEnv);
 
 	my_perl = perl_alloc();
 	perl_construct (my_perl);
@@ -46,24 +39,22 @@ void PerlWrapper::showMovieByGenre (const char *file){
 void PerlWrapper::retrieveMovieCandidates(const char *file,
 																					const char **parameters,
 																					unsigned numParameters,
-																					Marathon &marathon){
+																					vector<string> &selectedMovies){
 	dSP;
 	ENTER;
 	SAVETMPS;
 	PUSHMARK(SP);
-	XPUSHs(sv_2mortal(newSVpvf(file)));
+	XPUSHs(sv_2mortal(newSVpvf("%s", file)));
 	for (unsigned i = 0; i < numParameters; i++){
-		XPUSHs(sv_2mortal(newSVpvf(parameters[i])));
+		XPUSHs(sv_2mortal(newSVpvf("%s", parameters[i])));
 	}
 	PUTBACK;
 	call_pv("moviesSelection", G_ARRAY);
 	SPAGAIN;
 	STRLEN len;
 	unsigned numberOfMovies = POPi;
-	char *movie[numberOfMovies];
-	for (unsigned i = 0; i <= numberOfMovies; i++){
-		movie[i] = SvPV(POPs, len);
-		cout << movie[i] << endl;
+	for (unsigned i = 0; i < numberOfMovies; i++){
+		selectedMovies.push_back(POPp);
 	}
 	PUTBACK;
 	FREETMPS;
