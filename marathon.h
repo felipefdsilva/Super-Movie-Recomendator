@@ -10,7 +10,7 @@
 */
 
 #ifndef _MARATHON_H_
-#define _MARATHON_H_  "maratona.h"
+#define _MARATHON_H_  "marathon.h"
 
 #include <map>
 #include <iterator>

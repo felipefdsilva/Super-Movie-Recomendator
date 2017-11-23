@@ -13,7 +13,6 @@ use strict;
 use warnings;
 use Carp;
 use HTML::FormatText;
-use LWP::Simple qw(get);
 
 require Exporter;
 
@@ -27,12 +26,13 @@ our @ISA = qw(Exporter);
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
-getHtmlFiles
+FALSE
+TRUE
+URL
+GENRES
 validateFile
 getInfo
 createMovieStrings
-showFile
-moviesSelection
 ) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
@@ -45,31 +45,29 @@ our $VERSION = '0.01';
 
 use constant {FALSE=>0, TRUE=>1};
 use constant URL=>'http://www.imdb.com/search/title?view=advanced&sort=num_votes,desc&genres=';
-use constant GENRES=>qw(Action Adventure Animation
-                        Biography Comedy Crime
-                        Drama Family Fantasy
-                        Film-Noir History Horror
-                        Music Musical Mystery
-                        Romance Sci-Fi Sport
-                        Thriller War Western);
+use constant GENRES=>qw(Action
+                        Adventure
+                        Animation
+                        Biography
+                        Comedy
+                        Crime
+                        Drama
+                        Family
+                        Fantasy
+                        Film-Noir
+                        History
+                        Horror
+                        Music
+                        Musical
+                        Mystery
+                        Romance
+                        Sci-Fi
+                        Sport
+                        Thriller
+                        War
+                        Western);
 
-# Obtem os arquivos html a partir das paginas web
-# espefificadas por URL+GENRE (constantes acima)
-sub getHtmlFiles {
-  foreach my $genre (GENRES) {
-  	say "Fetching ",URL.$genre;
-    my $html = get(URL.$genre);
 
-    open (my $fileHandler, '>:encoding(UTF-8)', './Dados/'.$genre.'.html')
-    or die ("Could not create file.\n", $!);
-
-    say $fileHandler $html;
-
-    close $fileHandler;
-
-    say "File $genre.html created";
-  }
-}
 # Valida o arquivo passado pelo usuario
 # segundo um teste básico de credibilidade
 # e checando a extensão e o nome do arquivo
@@ -87,7 +85,6 @@ sub validateFile {
   }
   return (FALSE, "Not valid filename (imdb html files only)\n")
   unless ($credibility);
-
   open (my $fileHandler, "<", $file)
   or die ("Could not open file.\n", $!);
 
@@ -174,34 +171,6 @@ sub createMovieStrings {
   }
   return @movies;
 }
-# Exibe o arquivo na tela
-sub showFile {
-  my @movies = @_;
-  my $index = 1;
-  foreach (@movies){print $index++,"\n", $_,"\n\n";}
-}
-# Realiza a busca por filmes que atendam
-# aos parâmetros passados pelo usuário
-sub moviesSelection {
-  my @movies = @{$_[0]};
-  my @params = @{$_[1]};
-  my @selectedMovies;
-  my $flag=TRUE;
-
-  foreach my $movie (@movies){
-    foreach(@params){
-      if ($movie !~ /$_/){
-        $flag=FALSE;
-      }
-    }
-    if ($flag){
-      push @selectedMovies, $movie;
-    }
-    $flag=TRUE;
-  }
-  return @selectedMovies;
-}
-
 1;
 __END__
 =head1 NAME
