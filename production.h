@@ -13,14 +13,19 @@
 #define _PRODUCTION_H_  "production.h"
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
 class Production {
   public:
-    Production (string, string, unsigned);
+    void setName (string);
     string getName () const;
+
+    void setAuthor (string);
     string getAuthor () const;
+
+    void setYear (string);
     unsigned getYear() const;
   private:
     string mName, mAuthor;

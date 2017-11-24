@@ -8,16 +8,23 @@
 * Recomendador de Filmes e Maratonas
 * Implementação da Classe Production
 */
-
 #include "production.h"
+#include <cstdlib>
 
-Production::Production (string name, string author, unsigned year):
-                        mName(name), mAuthor(author), mYear (year){}
+void Production::setName (string name){
+  mName = name;
+}
 string Production::getName () const{
   return mName;
 }
+void Production::setAuthor (string author){
+  mAuthor = author;
+}
 string Production::getAuthor () const{
   return mAuthor;
+}
+void Production::setYear (string year){
+  mYear = strtoul(year.c_str(), NULL, 10);
 }
 unsigned Production::getYear() const {
   return mYear;

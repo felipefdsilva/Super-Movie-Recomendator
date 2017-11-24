@@ -12,9 +12,6 @@
 #define _MOVIE_H_ "movie.h"
 
 #include <iostream>
-#include <string>
-#include <vector>
-
 #include "production.h"
 
 using namespace std;
@@ -23,19 +20,31 @@ class Movie: public Production {
   friend ostream &operator<< (ostream &, const Movie &);
 
   public:
-    Movie (string, string, unsigned, string, unsigned, float,
-          float, string *, unsigned, string *, unsigned);
+    Movie (string, const unsigned = 4, const unsigned = 5);
+
+    void splitString (string, string, vector<string> &);
+
+    void setSinopsys (string);
     string getSinopsys () const;
-    void getActors (vector <string> &) const;
-    void getGenres (vector <string> &) const;
+
+    void setActors (string);
+    void getActors (vector<string> &) const;
+
+    void setGenres (string);
+    void getGenres (vector<string> &) const;
+
+    void setLength (string);
     unsigned getLength () const;
+
+    void setRating (string, string);
     float getRating () const;
+
   private:
     string mSinopsys;
     unsigned mLength;
-    float mImdbRating, mMetaRating;
-    vector <string> mActors;
-    vector <string> mGenres;
+    float mRating;
+    vector<string> mActors;
+    vector<string> mGenres;
   };
 
   #endif
