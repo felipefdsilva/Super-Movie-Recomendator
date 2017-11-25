@@ -1,54 +1,99 @@
 # Super-Movie-Recomendator
-Recomends movies based on user's informations
+It recomends movies marathons!
 
-## Parte III - Final Boss
+## Part III - Final Boss
 Parâmetros de entrada:
-  
-    Tempo Disponível
-    Gênero(s) [!]
-    Ator(es)
-    Ano (Faixa de Anos)
-    Diretor(es)
-    Nota de corte
-    Humor [?]
-    
-### Funções
 
-#### 1. selectFilesAndKeyWords
-  * Dados os parâmetros, serão selecionados os arquivos e algumas palavras-chave para busca e então, o módulo perl será chamado.
-#### 2. avaliateSearch (!!!!)
-  * Avalia a lista entregue pelo módulo perl, e, caso seja muito grande, refaz a busca com parâmetros mais restritivos.
-#### 3. removeRepetitions
-  * Recebe a lista tirada de cada arquivo e cria apenas uma, sem repetições. 
-    * STL __map__.
-#### 4. SelectMovies (!!!!)
-  * Desta lista, seleciona 3 para indicar ao usuário. (Como fazer esta ultima filtragem?)
-    * Pesos?
-#### 5. marathonTime
-  * Calcula o tempo total de maratona, somando a duração de cada filme
-#### 6. sortMovies
-  * Ordena os filmes na ordem em que devem ser assistidos
-  
+    Tempo Máximo
+    Gênero [!]
+    Ator
+    Ano (Faixa de Anos)
+    Diretor
+    Nota de corte
+
   ### Classes
-  
+
   ```c++
-    Class Obra {
-      private:
-        string autor;
-        string ano;
-    };
-    Class Movie: public Obra {
-      ostream &operator<< (ostream &, Movie &);
-      private:
-        string name;
-        string year;
-        ...
-    };
-    Class Marathon {
+    class PerlWrapper {
       public:
-        Marathon &operator+= (const Movie &);
+        PerlWrapper (int *, char ***, char ***);
+        ~PerlWrapper ();
+        void runInterpreterWithPerlFile (char *file);
+        void renewFiles ();
+        void showMovieByGenre (const char *);
+        void retrieveMovieCandidates (const char *,
+                                      const char **,
+                                      unsigned,
+                                      vector<string> &);
+
       private:
-        vector <Movie &> movies;
-        unsigned time;
+        PerlInterpreter *my_perl;
+        char *my_argv[2];
     };
+    class Production {
+      public:
+        void setName (string);
+        string getName () const;
+
+        void setAuthor (string);
+        string getAuthor () const;
+
+        void setYear (string);
+        unsigned getYear() const;
+      private:
+        string mName, mAuthor;
+        unsigned mYear;
+    };
+    class Movie: public Production {
+      friend ostream &operator<< (ostream &, const Movie &);
+
+      public:
+        Movie (string, const unsigned = 4, const unsigned = 5);
+
+        void splitString (string, string, vector<string> &);
+
+        void setSinopsys (string);
+        string getSinopsys () const;
+
+        void setActors (string);
+        void getActors (vector<string> &) const;
+
+        void setGenres (string);
+        void getGenres (vector<string> &) const;
+
+        void setLength (string);
+        unsigned getLength () const;
+
+        void setRating (string, string);
+        float getRating () const;
+
+      private:
+        string mSinopsys;
+        unsigned mLength;
+        float mRating;
+        vector<string> mActors;
+        vector<string> mGenres;
+      };
+      class Marathon: public map<string, Movie *> {
+        friend ostream &operator<< (ostream &, const Marathon &);
+
+        public:
+          Marathon (unsigned = 0);
+          void calculateDuration ();
+          unsigned getDuration ();
+
+        private:
+          unsigned mDuration;
+      };
   ```
+  ### Funções que faltam
+
+  #### 1. selectFilesAndKeyWords
+    * Dados os parâmetros, serão selecionados os arquivos e algumas palavras-chave para busca e então, o módulo perl será chamado.
+  #### 2. SelectMovies
+    * Desta lista, seleciona 3 para indicar ao usuário. (Como fazer esta ultima filtragem?)
+      * Pesos?
+  #### 3. sortMovies
+    * Ordena os filmes na ordem em que devem ser assistidos
+  #### 4. sortMoviesByRating
+    * Ordena filmes pela sua nota no IMDb.
