@@ -39,7 +39,7 @@ void PerlWrapper::showMovieByGenre (const char *file){
 void PerlWrapper::retrieveMovieCandidates(const char *file,
 																					const char **parameters,
 																					unsigned numParameters,
-																					vector<string> &selectedMovies){
+																					vector<Movie *> &selectedMovies){
 	dSP;
 	ENTER;
 	SAVETMPS;
@@ -52,9 +52,10 @@ void PerlWrapper::retrieveMovieCandidates(const char *file,
 	call_pv("moviesSelection", G_ARRAY);
 	SPAGAIN;
 	STRLEN len;
-	unsigned numberOfMovies = POPi;
-	for (unsigned i = 0; i < numberOfMovies; i++){
-		selectedMovies.push_back(POPp);
+	selectedMovies.resize(POPi);
+
+	for (unsigned i = 0; i < selectedMovies.size(); i++){
+		selectedMovies.at(i) = new Movie(POPp);
 	}
 	PUTBACK;
 	FREETMPS;

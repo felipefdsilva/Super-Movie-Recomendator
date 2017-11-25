@@ -1,16 +1,23 @@
-#include <iostream>
-#include <string>
-#include <iterator>
+/*
+* Universidade Federal do Rio de Janeiro
+* Departamento de Engenharia Eletrônica e de Computação
+* Linguagens de Programação 2017.2
+* Professor Miguel Campista
+* Autor: Felipe Ferreira da Silva
+* Trabalho do Período - Parte 3 (C++)
+* Recomendador de Filmes e Maratonas
+* Função Principal
+*/
+
 #include "wrapper.h"
-#include "movie.h"
+#include "marathon.h"
+#include "recomendator.h"
 
 #define OK      0
 
 using namespace std;
 
 int main (int argc, char **argv, char **env) {
-
- vector<string>retrievedMovies;
 
  if (argc != 2){
    cout << "What function?" << endl;
@@ -23,18 +30,22 @@ int main (int argc, char **argv, char **env) {
 
  if (!strcmp(argv[1], "renew"))
    perlWrapper.renewFiles();
+
  else if (!strcmp(argv[1], "show"))
    perlWrapper.showMovieByGenre("Dados/Drama.html");
+
  else if (!strcmp(argv[1], "selection")){
-   const char *parametros[1] = {"Kubrick"};
-   perlWrapper.retrieveMovieCandidates ("Dados/Drama.html",
-                                         parametros,
-                                         1,
-                                         retrievedMovies);
-   Movie movie1 (retrievedMovies.at(0));
-   Movie movie2 (retrievedMovies.at(1));
-   cout << movie1 << endl;
-   cout << movie2 << endl;
+   const unsigned numOfParameters = 1;
+   const char *parametros[numOfParameters] = {"Action"};
+   vector<Movie *>retrievedMovies;
+
+   perlWrapper.retrieveMovieCandidates ("Dados/Action.html", parametros, numOfParameters, retrievedMovies);
+
+   Marathon marathon;
+   Recomendator recomendator;
+   recomendator.findThreeBestRated(retrievedMovies, marathon);
+
+   cout << marathon << endl;
  }
  return OK;
 }

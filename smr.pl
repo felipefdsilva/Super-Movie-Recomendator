@@ -13,7 +13,16 @@ use smr ':all';
 use LWP::Simple qw(get);
 
 use constant OK=>0;
-
+use constant INFO_TYPE=>qw(
+  Title
+  Year
+  Length
+  Genres
+  Score
+  Synopsis
+  Director(s)
+  Stars
+);
 #Renova acervo de arquivos html em dir=./Dados/
 sub getHtmlFiles {
   foreach my $genre (GENRES) {
@@ -33,12 +42,15 @@ sub getHtmlFiles {
 # Exibe o arquivo na tela
 sub showFile {
   my $file = $_[0];
-  print validateFile($file);
+  print ((validateFile($file))[1]);
   my @info = getInfo($file);
-  my @movies = createMovieStrings (@info);
-  my $index = 1;
-  foreach (@movies){
-    print $index++,"\n", $_,"\n\n";
+  my $sizeInfo = @info;
+  my $numMovies = @{$info[0]};
+  for (my $movie = 0; $movie < $numMovies; $movie++){
+    print "\n", 1 + $movie, "\n";
+    for (my $data = 0; $data < $sizeInfo; $data++) {
+      print ((INFO_TYPE)[$data], ": ", ${$info[$data]}[$movie], "\n");
+    }
   }
 }
 # Realiza a busca por filmes que atendam

@@ -24,20 +24,20 @@ class Movie: public Production {
 
     void splitString (string, string, vector<string> &);
 
-    void setSinopsys (string);
-    string getSinopsys () const;
-
-    void setActors (string);
-    void getActors (vector<string> &) const;
+    void setLength (const string);
+    unsigned getLength () const;
 
     void setGenres (string);
     void getGenres (vector<string> &) const;
 
-    void setLength (string);
-    unsigned getLength () const;
-
-    void setRating (string, string);
+    void setRating (const string);
     float getRating () const;
+
+    void setSinopsys (const string);
+    string getSinopsys () const;
+
+    void setActors (string);
+    void getActors (vector<string> &) const;
 
   private:
     string mSinopsys;

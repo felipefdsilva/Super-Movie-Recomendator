@@ -9,24 +9,24 @@
 * Implementação da Classe Marathon
 */
 
+#include <iterator>
 #include "marathon.h"
 
 ostream &operator<< (ostream &output, const Marathon &marathon){
-  map<string, Movie *>::const_iterator it = marathon.begin();
-
-  while(it != marathon.end()){
-    cout << (*it->second) << endl;
-    it++;
+  for (unsigned i = 0; i < marathon.size(); ++i){
+    output << (*marathon.at(i)) << endl;
   }
+  return output;
 }
 
 Marathon::Marathon (unsigned duration){
   mDuration = duration;
 }
+
 void Marathon::calculateDuration (){
-  map<string, Movie *>::iterator it = begin();
+  vector<Movie *>::iterator it = begin();
   while (it != end()){
-    mDuration += (*it).second->getLength();
+    mDuration += (*it)->getLength();
     it++;
   }
 }

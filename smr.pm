@@ -43,29 +43,32 @@ our @EXPORT = qw(
 
 our $VERSION = '0.01';
 
-use constant {FALSE=>0, TRUE=>1};
+use constant {FALSE=>0,
+              TRUE=>1};
 use constant URL=>'http://www.imdb.com/search/title?view=advanced&sort=num_votes,desc&genres=';
-use constant GENRES=>qw(Action
-                        Adventure
-                        Animation
-                        Biography
-                        Comedy
-                        Crime
-                        Drama
-                        Family
-                        Fantasy
-                        Film-Noir
-                        History
-                        Horror
-                        Music
-                        Musical
-                        Mystery
-                        Romance
-                        Sci-Fi
-                        Sport
-                        Thriller
-                        War
-                        Western);
+use constant GENRES=>qw(
+  Action
+  Adventure
+  Animation
+  Biography
+  Comedy
+  Crime
+  Drama
+  Family
+  Fantasy
+  Film-Noir
+  History
+  Horror
+  Music
+  Musical
+  Mystery
+  Romance
+  Sci-Fi
+  Sport
+  Thriller
+  War
+  Western
+);
 
 
 # Valida o arquivo passado pelo usuario
@@ -106,67 +109,53 @@ sub validateFile {
 # informações dos filmes
 sub getInfo {
   my $filename = $_[0];
-  my @movie; my @year; my @length;
-  my @genres; my @IMDBscore;
-  my @Metascore; my @synopsis;
-  my @directors; my @stars;
+  my @movie;
+  my @year;
+  my @length;
+  my @genres;
+  my @IMDBscore;
+  my @synopsis;
+  my @directors;
+  my @stars;
   my $getNextLines = FALSE;
 
 	# Formatação prévia do arquivo html (sem tags)
   my $niceHtml = HTML::FormatText->format_file
   ($filename, leftmargin => 0, rightmargin => 300);
 	# Fim da formatação
-
   my @niceHtml = split(/\n/, $niceHtml);
 
 	# Busca por informações
   foreach (@niceHtml){
 		# Busca por filmes e ano de laçamento
     if (/^(?:\d{1,2}\.) ([\S\s]*) (?:\()(\d{4})(?:\))$/){
-      push @movie, $1;
-      #push @year, "Year: ".$2;
-      push @year, $2;
+      push @movie, $1; push @year, $2;
       $getNextLines = TRUE;
     }
     if ($getNextLines){
 			# Busca a duração e os gêneros
       if (/(?:(?:\d{1,2}|\w+)\s\|\s)?(\d{1,3}) (?:min\s\|) ((\w+-?,?\s?)+)$/){
-        #push @length, "Length (min): ".$1;
-        #push @genres, "Genres: ".$2;
-        push @length, $1;
-        push @genres, $2;
+        push @length, $1; push @genres, $2;
 			# Busca as notas dos usuários
       } elsif (/^(\d{1,2}\.?\d) (?:(?:\w+\s){12}\S*\sX)/){
-        #push @IMDBscore, "IMDB Score: ".$1;
         push @IMDBscore, $1;
-        if (/(\d{2,3}) (?:Metascore)$/i){
-          #push @Metascore, "Metascore: ".$1;
-          push @Metascore, $1;
-        } else {
-          #push @Metascore, "Metascore: XX";
-          push @Metascore, "XX";
-        }
 			# Busca pelo atores principais e diretores
       } elsif (/(?:Stars:) ([\S\s]+)$/i){
-        #push @stars, "Stars: ".$1;
         push @stars, $1;
         if (/^(?:Directors?:) ([\S\s]+)(?:\|\s)/i){
-          #push @directors, "Director(s): ".$1;
           push @directors, $1;
         } else {
-          #push @directors, "Director(s): XX";
           push @directors, "XX";
         }
         $getNextLines=FALSE;
 			# Busca pela sinopse
       } elsif (/^[A-Za-z.\-'"0-9:,.();!?#]/ && /(\.|\?|"|\!)$/){
-        #push @synopsis, "Synopsis: ".$_;
         push @synopsis, $_;
       }
     }
   }
-  return \@movie, \@year, \@length, \@genres, \@IMDBscore,
-         \@Metascore, \@synopsis, \@directors, \@stars;
+  return \@movie, \@year, \@length, \@genres,
+         \@IMDBscore, \@synopsis, \@directors, \@stars;
 }
 # Concatena as informaçoess de um mesmo filme
 # antes separadas em listas diferentes

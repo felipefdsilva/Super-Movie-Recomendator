@@ -5,6 +5,7 @@
 #include <perl.h>
 #include <vector>
 #include <string>
+#include "movie.h"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ class PerlWrapper {
 		void retrieveMovieCandidates (const char *,
 																	const char **,
 																	unsigned,
-																	vector<string> &);
+																	vector<Movie *> &);
 
 	private:
 		PerlInterpreter *my_perl;

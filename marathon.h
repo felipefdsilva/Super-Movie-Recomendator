@@ -12,11 +12,10 @@
 #ifndef _MARATHON_H_
 #define _MARATHON_H_  "marathon.h"
 
-#include <map>
-#include <iterator>
+#include <vector>
 #include "movie.h"
 
-class Marathon: public map<string, Movie *> {
+class Marathon: public vector<Movie *> {
   friend ostream &operator<< (ostream &, const Marathon &);
 
   public:
