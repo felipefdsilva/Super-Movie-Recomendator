@@ -10,19 +10,64 @@
 */
 
 #include <map>
+#include <stdlib.h>
+#include <time.h>
 #include "recomendator.h"
 
-void Recomendator::findThreeBestRated (const vector<Movie *> &movie, Marathon &marathon){
+Recomendator::Recomendator (vector<Movie *> movies){
+  movieList.swap (movies);
+}
+unsigned Recomendator::calculateMeanTime (){
+  unsigned meanTime = 0;
+
+  for (unsigned i = 0; i < movieList.size(); i++){
+    meanTime += movieList.at(i)->getLength();
+  }
+  return meanTime/movieList.size();
+}
+
+void Recomendator::marathonWithTimeLimit (unsigned timeDisp){
+  srand(time(NULL));
+  unsigned tries = 0;
+  unsigned indexList[3];
+  do {
+    indexList[0] = rand() % movieList.size();
+    do {
+      indexList[1] = rand() % movieList.size();
+    } while (indexList[1] == indexList[0]);
+    do {
+      indexList[2] = rand() % movieList.size();
+    } while (indexList[2] == indexList[1] || indexList[2] == indexList[0]);
+
+    for (unsigned i = 0; i < 3; i++){
+      marathon.push_back(movieList.at(indexList[i]));
+    }
+    if (marathon.calculateDuration() > timeDisp){
+      for (unsigned i = 0; i < 3; i++){
+        marathon.pop_back();
+      }
+      if (++tries > 2000000){
+        cout << "Não consegui achar";
+        break;
+      }
+    }
+  } while (marathon.getDuration() > timeDisp);
+}
+
+void Recomendator::findThreeBestRated (){
   unsigned i = 0;
   multimap <float, unsigned> scores;
-  vector<Movie *>::const_iterator it = movie.begin();
+  vector<Movie *>::const_iterator it = movieList.begin();
   multimap <float, unsigned>::iterator itScore = scores.end();
 
-  while(it != movie.end()){
+  while(it != movieList.end()){
     scores.insert(pair<float, unsigned>((*it)->getRating(), i));
     i++; it++;
   }
   for (unsigned i = 0; i < 3; i++) {
-    marathon.push_back(movie.at((*--itScore).second));
+    marathon.push_back(movieList.at((*--itScore).second));
   }
+}
+Marathon Recomendator::getMarathon () const{
+  return marathon;
 }

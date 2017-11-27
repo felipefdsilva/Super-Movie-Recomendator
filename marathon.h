@@ -20,7 +20,7 @@ class Marathon: public vector<Movie *> {
 
   public:
     Marathon (unsigned = 0);
-    void calculateDuration ();
+    unsigned calculateDuration ();
     unsigned getDuration ();
 
   private:

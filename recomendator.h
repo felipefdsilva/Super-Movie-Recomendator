@@ -16,8 +16,15 @@
 
 class Recomendator {
   public:
-    void findThreeBestRated (const vector<Movie *> &, Marathon &);
-    
+    Recomendator(vector<Movie *>);
+    unsigned calculateMeanTime ();
+    void findThreeBestRated ();
+    void marathonWithTimeLimit(unsigned);
+    Marathon getMarathon () const;
+
+  private:
+    vector<Movie *> movieList;
+    Marathon marathon;
 };
 
 #endif

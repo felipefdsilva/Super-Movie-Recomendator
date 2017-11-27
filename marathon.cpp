@@ -23,14 +23,21 @@ Marathon::Marathon (unsigned duration){
   mDuration = duration;
 }
 
-void Marathon::calculateDuration (){
+unsigned Marathon::calculateDuration (){
   vector<Movie *>::iterator it = begin();
+
+  if (size() == 0)
+    return 0;
+
+  mDuration = 0;
+
   while (it != end()){
     mDuration += (*it)->getLength();
     it++;
   }
+  return mDuration;
 }
+
 unsigned Marathon::getDuration () {
-  calculateDuration();
   return mDuration;
 }

@@ -10,7 +10,6 @@
 */
 
 #include "wrapper.h"
-#include "marathon.h"
 #include "recomendator.h"
 
 #define OK      0
@@ -27,6 +26,7 @@ int main (int argc, char **argv, char **env) {
 
  char file[7] = "smr.pl";
  perlWrapper.runInterpreterWithPerlFile(file);
+ string genero;
 
  if (!strcmp(argv[1], "renew"))
    perlWrapper.renewFiles();
@@ -35,17 +35,28 @@ int main (int argc, char **argv, char **env) {
    perlWrapper.showMovieByGenre("Dados/Drama.html");
 
  else if (!strcmp(argv[1], "selection")){
+   unsigned timeDisp = 0;
    const unsigned numOfParameters = 1;
-   const char *parametros[numOfParameters] = {"Action"};
    vector<Movie *>retrievedMovies;
+
+   const char *parametros[numOfParameters] = {"Action"};
 
    perlWrapper.retrieveMovieCandidates ("Dados/Action.html", parametros, numOfParameters, retrievedMovies);
 
-   Marathon marathon;
-   Recomendator recomendator;
-   recomendator.findThreeBestRated(retrievedMovies, marathon);
+   Recomendator recomendator(retrievedMovies);
+   //recomendator.findThreeBestRated();
+   unsigned minTime = recomendator.calculateMeanTime()*3;
 
-   cout << marathon << endl;
+   while (timeDisp < minTime) {
+     cout << "Quanto tempo disponiel?" << endl;
+     cin >> timeDisp;
+     if (timeDisp < minTime)
+      cout << "Muito pouco! Não tem pelo menos "<< minTime <<" minutos?" << endl;
+   }
+   recomendator.marathonWithTimeLimit(timeDisp);
+
+   cout << recomendator.getMarathon() << endl;
+   cout << "Tempo Total de Maratona: " << (recomendator.getMarathon()).getDuration() << " minutos" << endl;
  }
  return OK;
 }
