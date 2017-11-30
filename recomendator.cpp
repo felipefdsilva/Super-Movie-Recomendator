@@ -10,8 +10,9 @@
 */
 
 #include <map>
-#include <stdlib.h>
+#include <cmath>
 #include <time.h>
+#include <stdlib.h>
 #include "recomendator.h"
 
 Recomendator::Recomendator (vector<Movie *> movies){
@@ -46,8 +47,8 @@ void Recomendator::marathonWithTimeLimit (unsigned timeDisp){
       for (unsigned i = 0; i < 3; i++){
         marathon.pop_back();
       }
-      if (++tries > 2000000){
-        cout << "Não consegui achar";
+      if (++tries > 1000000000){
+        cout << "Could not create marathon";
         break;
       }
     }
@@ -59,7 +60,7 @@ void Recomendator::findThreeBestRated (){
   multimap <float, unsigned> scores;
   vector<Movie *>::const_iterator it = movieList.begin();
   multimap <float, unsigned>::iterator itScore = scores.end();
-
+  it = movieList.begin();
   while(it != movieList.end()){
     scores.insert(pair<float, unsigned>((*it)->getRating(), i));
     i++; it++;
@@ -67,6 +68,7 @@ void Recomendator::findThreeBestRated (){
   for (unsigned i = 0; i < 3; i++) {
     marathon.push_back(movieList.at((*--itScore).second));
   }
+  marathon.calculateDuration();
 }
 Marathon Recomendator::getMarathon () const{
   return marathon;

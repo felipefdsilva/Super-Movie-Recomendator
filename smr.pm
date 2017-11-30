@@ -103,7 +103,7 @@ sub validateFile {
   return (FALSE, "Not a valid html file (low credibility)\n")
   unless($credibility > 1800 && $credibility < 2000);
 
-  return (TRUE, "This is a nice and valid file\n");
+  return (TRUE, "This is a valid file\n");
 }
 # Usa regex para identificar e salvar
 # informações dos filmes
@@ -124,7 +124,6 @@ sub getInfo {
   ($filename, leftmargin => 0, rightmargin => 300);
 	# Fim da formatação
   my @niceHtml = split(/\n/, $niceHtml);
-
 	# Busca por informações
   foreach (@niceHtml){
 		# Busca por filmes e ano de laçamento

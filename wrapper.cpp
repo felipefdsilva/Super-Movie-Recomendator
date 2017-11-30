@@ -37,7 +37,7 @@ void PerlWrapper::showMovieByGenre (const char *file){
 	LEAVE;
 }
 void PerlWrapper::retrieveMovieCandidates(const char *file,
-																					const char **parameters,
+																					string *parameters,
 																					unsigned numParameters,
 																					vector<Movie *> &selectedMovies){
 	dSP;
@@ -46,7 +46,7 @@ void PerlWrapper::retrieveMovieCandidates(const char *file,
 	PUSHMARK(SP);
 	XPUSHs(sv_2mortal(newSVpvf("%s", file)));
 	for (unsigned i = 0; i < numParameters; i++){
-		XPUSHs(sv_2mortal(newSVpvf("%s", parameters[i])));
+		XPUSHs(sv_2mortal(newSVpvf("%s", parameters[i].c_str())));
 	}
 	PUTBACK;
 	call_pv("moviesSelection", G_ARRAY);

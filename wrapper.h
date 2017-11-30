@@ -17,7 +17,7 @@ class PerlWrapper {
 		void renewFiles ();
 		void showMovieByGenre (const char *);
 		void retrieveMovieCandidates (const char *,
-																	const char **,
+																	string *,
 																	unsigned,
 																	vector<Movie *> &);
 

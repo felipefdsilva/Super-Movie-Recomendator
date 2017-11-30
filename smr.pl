@@ -61,7 +61,7 @@ sub moviesSelection {
   my @selectedMovies;
   my $flag=TRUE;
 
-  validateFile($file);
+  print ((validateFile($file))[1]);
   my @info = getInfo($file);
   my @movies = createMovieStrings (@info);
 
