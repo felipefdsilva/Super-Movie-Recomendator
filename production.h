@@ -19,6 +19,8 @@ using namespace std;
 
 class Production {
   public:
+    virtual void print () const;
+
     void setName (string);
     string getName () const;
 

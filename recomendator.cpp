@@ -15,8 +15,15 @@
 #include <stdlib.h>
 #include "recomendator.h"
 
-Recomendator::Recomendator (vector<Movie *> movies){
-  movieList.swap (movies);
+Recomendator::Recomendator (vector<string> &movies){
+  for (unsigned i = 0; i < movies.size(); i++){
+    movieList.push_back(new Movie(movies.at(i)));
+  }
+}
+Recomendator::~Recomendator (){
+  for (unsigned i = 0; i < movieList.size(); i++){
+    delete movieList.at(i);
+  }
 }
 unsigned Recomendator::calculateMeanTime (){
   unsigned meanTime = 0;
@@ -60,7 +67,7 @@ void Recomendator::findThreeBestRated (){
   multimap <float, unsigned> scores;
   vector<Movie *>::const_iterator it = movieList.begin();
   multimap <float, unsigned>::iterator itScore = scores.end();
-  it = movieList.begin();
+
   while(it != movieList.end()){
     scores.insert(pair<float, unsigned>((*it)->getRating(), i));
     i++; it++;
@@ -70,6 +77,7 @@ void Recomendator::findThreeBestRated (){
   }
   marathon.calculateDuration();
 }
+
 Marathon Recomendator::getMarathon () const{
   return marathon;
 }

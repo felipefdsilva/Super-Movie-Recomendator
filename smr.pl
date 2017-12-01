@@ -18,7 +18,7 @@ use constant INFO_TYPE=>qw(
   Year
   Length
   Genres
-  Score
+  Rating
   Synopsis
   Director(s)
   Stars

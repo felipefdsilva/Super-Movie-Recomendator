@@ -16,7 +16,8 @@
 
 class Recomendator {
   public:
-    Recomendator(vector<Movie *>);
+    Recomendator(vector<string> &);
+    ~Recomendator();
     unsigned calculateMeanTime ();
     void findThreeBestRated ();
     void marathonWithTimeLimit(unsigned);

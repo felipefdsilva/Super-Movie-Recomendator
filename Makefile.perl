@@ -11,7 +11,7 @@ LCPP=g++
 CCPPFLAGS=`perl -MExtUtils::Embed -e ccopts`
 LCPPFLAGS=`perl -MExtUtils::Embed -e ldopts`
 
-SMROBJS= mainSmr.o recomendator.o marathon.o movie.o production.o xsinit.o wrapper.o
+SMROBJS= mainSmr.o recomendator.o marathon.o movie.o production.o split.o xsinit.o wrapper.o
 
 EXECS=SMR
 

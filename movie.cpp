@@ -10,38 +10,17 @@
 */
 
 #include "movie.h"
+#include "split.h"
 #include <cstdlib>
 
 ostream &operator<< (ostream &output, const Movie &movie){
-  output << "Title: " << movie.getName()
-          << "\nYear: " << movie.getYear()
-          << "\nDirector(s): " << movie.getAuthor()
-          << "\nSisnopsys: " << movie.mSinopsys
-          << "\nLength: " << movie.mLength << " min"
-          << "\nRating: " << movie.getRating();
-
-  output << "\nActors: ";
-  for (unsigned i = 0; i < movie.mActors.size()-1; i++)
-    output << movie.mActors.at(i) << ", ";
-  output << movie.mActors.at(movie.mActors.size()-1);
-
-  output << "\nGenres: ";
-  for (unsigned i = 0; i < movie.mGenres.size()-1; i++)
-    output << movie.mGenres.at(i) << ", ";
-  output << movie.mGenres.at(movie.mGenres.size()-1);
-
-  output << endl;
-
+  movie.print();
   return output;
 }
 
-Movie::Movie (string movie,
-              const unsigned sizeOfActors,
-              const unsigned sizeOfGenres):
-              mActors(sizeOfActors),
-              mGenres(sizeOfGenres){
+Movie::Movie (string movie){
 
-  vector<string> info(8);
+  vector<string> info;
 
   splitString (movie, "\n", info);
 
@@ -55,20 +34,26 @@ Movie::Movie (string movie,
   setActors (info.at(7));
 }
 
-void Movie::splitString (string str, string delimiter, vector<string> &v){
-  unsigned i = 0;
-  unsigned position = str.find(delimiter);
-  while (position < str.size() && i < v.size()){
-    v.at(i++) = str.substr(0, position);
-    str = str.erase(0, position+delimiter.size());
-    position = str.find(delimiter);
-  }
-  if (str.size()){
-    v.at(i) = str.substr(0, str.size());
-    v.resize(++i);
-  } else {
-    v.resize(i);
-  }
+void Movie::print () const {
+  Production::print();
+
+  cout  << "Sisnopsys: " << mSinopsys << endl
+        << "Length: " << mLength << " min" << endl
+        << "Rating: " << mRating << endl;
+
+  cout << "Actors: ";
+
+    for (unsigned i = 0; i < mActors.size()-1; i++)
+      cout << mActors.at(i) << ", ";
+    cout << mActors.at(mActors.size()-1) << endl;
+
+    cout << "Genres: ";
+
+    for (unsigned i = 0; i < mGenres.size()-1; i++)
+      cout << mGenres.at(i) << ", ";
+    cout << mGenres.at(mGenres.size()-1) << endl;
+
+    cout << endl;
 }
 
 void Movie::setLength (const string length){

@@ -9,8 +9,14 @@
 * Implementação da Classe Production
 */
 #include "production.h"
+#include <iostream>
 #include <cstdlib>
 
+void Production::print () const{
+  cout << "Title: " << mName << endl
+       << "Year: " << mYear << endl
+       << "Director(s): " << mAuthor << endl;
+}
 void Production::setName (string name){
   mName = name;
 }

@@ -9,52 +9,53 @@
 * Função Principal
 */
 
+#include "split.h"
 #include "wrapper.h"
 #include "recomendator.h"
 
-#define OK      0
+#define OK                    0
+#define NOT_ENOUGH_ARGS       1
+#define NOT_ENOUGH_TIME       2
+#define NOT_VALID_TIME        3
+
+#define MAX_OF_PARAMETERS     3
 
 using namespace std;
 
 int main (int argc, char **argv, char **env) {
 
   string file, ans;
-  string parameters[4];
-  unsigned numOfParameters = 0;
-  vector<Movie *>retrievedMovies;
-  unsigned minTime, timeAvaliable;
+  string parameters;
+  vector<string> vParameters;
+  vector<string> retrievedMovies;
+  unsigned minTime, timeAvaliable = 0;
 
   PerlWrapper perlWrapper(&argc, &argv, &env);
 
   perlWrapper.runInterpreterWithPerlFile((char *)"smr.pl");
 
-  if (argc != 2){
-    cout << "The options are:" << endl;
-    cout << "\"renew database\", \"show file\", \"marathon\"" << endl;
-    exit (1);
+  if (argc != 3 && argc != 4){
+    cout << "Usage: " << argv[0] << " renew database" << endl
+         << "Usage: " << argv[0] << " show <file>" << endl
+         << "Usage: " << argv[0] << " marathon <file> [<time limit>]" << endl;
+    exit (NOT_ENOUGH_ARGS);
   }
-  if (!strcmp(argv[1], "renew database")){
+  if (!strcmp(argv[1], "renew") && !strcmp(argv[2], "database")){
     perlWrapper.renewFiles();
     return OK;
   }
-  if (!strcmp(argv[1], "show file")){
-    cout << "What file?" << endl;
-    getline(cin, file);
-    perlWrapper.showMovieByGenre(file.c_str());
+  if (!strcmp(argv[1], "show")){
+    perlWrapper.showMovieByGenre(argv[2]);
     return OK;
   }
   if (!strcmp(argv[1], "marathon")){
-    cout << "What file?" << endl;
-    getline(cin, file);
-    cout << "Give me some key-words (type \"end\" to stop)" << endl;
-    cout << "Examples: name of an actor or director, a year" << endl;
-    getline(cin, parameters[numOfParameters]);
-    while (numOfParameters < 3 && parameters[numOfParameters].compare("end")){
-        numOfParameters++;
-        cout << "What else? ";
-        getline(cin, parameters[numOfParameters]);
-    }
-    perlWrapper.retrieveMovieCandidates (file.c_str(), parameters, numOfParameters, retrievedMovies);
+    cout << "Give me some key-words" << endl;
+    cout << "Examples: name of an actor or director, a year, a movie genre" << endl;
+
+    getline(cin, parameters);
+    splitString(parameters, " ", vParameters);
+
+    perlWrapper.retrieveMovieCandidates (argv[2], vParameters, retrievedMovies);
 
     if (!retrievedMovies.size()){
       cout << "=====================================" << endl;
@@ -65,6 +66,7 @@ int main (int argc, char **argv, char **env) {
       cout << endl;
       return OK;
     }
+
     if (retrievedMovies.size() < 4) {
       cout << "=====================================" << endl;
       cout << "The search returned only a few movies" << endl;
@@ -72,7 +74,7 @@ int main (int argc, char **argv, char **env) {
       cout << "=====================================" << endl;
       cout << endl;
       for (unsigned i = 0; i < retrievedMovies.size(); i++)
-        cout << (*retrievedMovies.at(i)) << endl;
+        cout << retrievedMovies.at(i) << endl;
         return OK;
     }
 
@@ -81,35 +83,37 @@ int main (int argc, char **argv, char **env) {
 
     Recomendator recomendator(retrievedMovies);
 
-    cout << "Do you have a time limit? (y/n)" << endl;
-    getline(cin, ans);
-    while (ans.compare("n") && (ans.compare("y"))){
-      cout << "Options are \"y\" or \"n\"" << endl;
-      getline(cin, ans);
-    }
-    if (!ans.compare("y")){
-      minTime = recomendator.calculateMeanTime()*3;
-
-      cout << "How much time do you have?" << endl;
-      cin >> ans;
-
-      timeAvaliable = strtoul(ans.c_str(), NULL, 10);
-
-      while (timeAvaliable < minTime) {
-        cout << "Don't you have at least "<< minTime <<" minutes?" << endl;
-        cin >> ans;
-        timeAvaliable = strtoul(ans.c_str(), NULL, 10);
+    if (argc == 4){
+      timeAvaliable = strtoul(argv[3], NULL, 10);
+      if (!timeAvaliable){
+        cout << endl;
+        cout << "Time limit is not valid: " << argv[3] << " minutes" << endl;
+        cout << endl;
+        exit(NOT_VALID_TIME);
       }
-      recomendator.marathonWithTimeLimit(timeAvaliable);
-    } else if (!ans.compare("n")){
+    }
+
+    minTime = recomendator.calculateMeanTime()*3;
+
+    if (!timeAvaliable){
       recomendator.findThreeBestRated();
     }
+    else if (timeAvaliable < minTime){
+      cout << endl;
+      cout << "Hey, don't you have at least "<< minTime <<" minutes?" << endl;
+      cout << endl;
+      exit(NOT_ENOUGH_TIME);
+    }
+    else {
+      recomendator.marathonWithTimeLimit(timeAvaliable);
+    }
+
     cout << "=====================================" << endl;
     cout << "Ok. Here's your marathon:" << endl;
     cout << "=====================================" << endl;
+    sleep(3);
     cout << endl;
-    cout << recomendator.getMarathon() << endl;
-
+    cout << recomendator.getMarathon();
     cout << "Marathon total time: " << recomendator.getMarathon().getDuration() << " minutes" << endl;
   }
   return OK;

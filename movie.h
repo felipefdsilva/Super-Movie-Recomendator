@@ -16,13 +16,13 @@
 
 using namespace std;
 
-class Movie: public Production {
+class Movie: public Production, public string {
   friend ostream &operator<< (ostream &, const Movie &);
 
   public:
-    Movie (string, const unsigned = 4, const unsigned = 5);
+    Movie (string);
 
-    void splitString (string, string, vector<string> &);
+    virtual void print () const;
 
     void setLength (const string);
     unsigned getLength () const;
