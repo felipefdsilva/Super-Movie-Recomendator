@@ -9,9 +9,9 @@
 * Implementação da Classe Movie
 */
 
+#include <cstdlib>
 #include "movie.h"
 #include "split.h"
-#include <cstdlib>
 
 ostream &operator<< (ostream &output, const Movie &movie){
   movie.print();

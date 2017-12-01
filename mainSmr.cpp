@@ -73,9 +73,13 @@ int main (int argc, char **argv, char **env) {
       cout << "Cannot elaborate a marathon" << endl;
       cout << "=====================================" << endl;
       cout << endl;
-      for (unsigned i = 0; i < retrievedMovies.size(); i++)
-        cout << retrievedMovies.at(i) << endl;
-        return OK;
+      Movie *movie;
+      for (unsigned i = 0; i < retrievedMovies.size(); i++){
+        movie = new Movie(retrievedMovies.at(i));
+        cout << (*movie) << endl;
+        delete movie;
+      }
+      return OK;
     }
 
     cout << "The search returned " <<

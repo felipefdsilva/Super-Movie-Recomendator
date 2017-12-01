@@ -1,5 +1,15 @@
+/*
+* Universidade Federal do Rio de Janeiro
+* Departamento de Engenharia Eletrônica e de Computação
+* Linguagens de Programação 2017.2
+* Professor Miguel Campista
+* Autor: Felipe Ferreira da Silva
+* Trabalho do Período - Parte 3 (C++)
+* Recomendador de Filmes e Maratonas
+* Implementação da Classe Wrapper
+*/
+
 #include "wrapper.h"
-#include "xsinit.h"
 
 PerlWrapper::PerlWrapper (int *pArgc, char ***pArgv, char ***pEnv){
 	PERL_SYS_INIT3 (pArgc, pArgv, pEnv);
@@ -57,4 +67,13 @@ void PerlWrapper::retrieveMovieCandidates(const char *file,
 	PUTBACK;
 	FREETMPS;
 	LEAVE;
+}
+
+EXTERN_C void xs_init(pTHX) {
+    static const char file[] = __FILE__;
+    dXSUB_SYS;
+    PERL_UNUSED_CONTEXT;
+
+    /* DynaLoader is a special case */
+    newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
 }

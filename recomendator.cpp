@@ -10,9 +10,8 @@
 */
 
 #include <map>
-#include <cmath>
-#include <time.h>
-#include <stdlib.h>
+#include <ctime>
+#include <cstdlib>
 #include "recomendator.h"
 
 Recomendator::Recomendator (vector<string> &movies){
